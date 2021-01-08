@@ -3,15 +3,31 @@
 
   <head>
     <title>2019冠狀病毒病 - 香港慨況</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.3/nouislider.css" integrity="sha512-XXtRBFtk/QfR8GEWwQPYjrQBHQwjidXg0wo8HJi9YOaFycWqd2uWkjJoAyx8Mb/+H8uhvmf70EAIxDnQxrwrvw==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-lightbox@2.1.0/dist/simpleLightbox.min.css">
+
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/regression/2.0.1/regression.min.js" integrity="sha512-0k6FXllQktdobw8Nc8KQN2WtZrOuxpMn7jC2RKCF6LR7EdOhhrg3H5cBPxhs3CFzQVlO6ni1B9SDLUPhBs0Alg==" crossorigin="anonymous"></script>
-    <script src="https://momentjs.com/downloads/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.3/nouislider.min.js" integrity="sha512-EnXkkBUGl2gBm/EIZEgwWpQNavsnBbeMtjklwAa7jLj60mJk932aqzXFmdPKCG6ge/i8iOCK0Uwl1Qp+S0zowg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wnumb/1.2.0/wNumb.min.js" integrity="sha512-igVQ7hyQVijOUlfg3OmcTZLwYJIBXU63xL9RC12xBHNpmGJAktDnzl9Iw0J4yrSaQtDxTTVlwhY730vphoVqJQ==" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.3/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-lightbox@2.1.0/src/simpleLightbox.min.js"></script>
+
     <script>
         Date.prototype.addDays = function(days) {
             var result = new Date(this);
             result.setDate(this.getDate() + parseInt(days));
             return result;
         };
+
+        dateFormatter = {
+            from: function(value) {
+                return new Date(value.getYear() + "-" + value.getMonth() + "-" + value.getDate());
+            },
+            to: function(value) {
+                return new Date(value).toLocaleDateString("zh-HK", {dateStyle: "short"});
+            }
+        }
 
         google.charts.load('current', {
         'packages': ['corechart']
@@ -199,6 +215,19 @@
             }
         }
 
+        function ChartController(chart, options, data, viewFactory) {
+            var view = viewFactory(data);
+            this.options = options;
+            this.redraw = function (newData) {
+                if (newData) {
+                    view = viewFactory(newData);
+                }
+                chart.draw(view, options);
+            }
+        }
+
+        confirmedController = null;
+
         function handleQueryResponse(response) {
             if (response.isError()) {
                 alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
@@ -212,34 +241,41 @@
             addPredictedValues(data, 1, "predicted", 140, 160, last);
             addPredictedValues(data, 2, "predicted_unlinked", 140, 160, last);
 
-            var options = {
-                    title: '\u672c\u5730\u500b\u6848',
-                    curveType: 'function',
-                    legend: { position: 'bottom' },
-                    hAxis: {
-                        viewWindow: {
-                            min: new Date(2020, 6, 5)
-                        }
-                    },
-                    vAxis: {
-                        viewWindow: {
-                            min: 0
-                        }
-                    },
-                    series: {
-                        2: { lineDashStyle: [10, 2] },
-                        3: { lineDashStyle: [10, 2] },
-                        4: { lineDashStyle: [2, 2] },
-                        5: { lineDashStyle: [2, 2] },
-                        6: { lineDashStyle: [2, 2] },
-                        7: { lineDashStyle: [2, 2] },
-                    }
-                };
-
             var chart = new google.visualization.ComboChart(document.getElementById('confirmed'));
-            var view = new google.visualization.DataView(data);
-            view.hideColumns([3,4])
-            chart.draw(view, options);
+            var options = {
+                title: '\u672c\u5730\u500b\u6848',
+                animation: {
+                    duration: 500,
+                    easing: "out"
+                },
+                curveType: 'function',
+                legend: { position: 'bottom' },
+                hAxis: {
+                    viewWindow: {
+                        min: new Date(2020, 6, 5)
+                    }
+                },
+                vAxis: {
+                    viewWindow: {
+                        min: 0
+                    }
+                },
+                series: {
+                    2: { lineDashStyle: [10, 2] },
+                    3: { lineDashStyle: [10, 2] },
+                    4: { lineDashStyle: [2, 2] },
+                    5: { lineDashStyle: [2, 2] },
+                    6: { lineDashStyle: [2, 2] },
+                    7: { lineDashStyle: [2, 2] },
+                }
+            };
+
+            confirmedController = new ChartController(chart, options, data, function(data){ 
+                var view = new google.visualization.DataView(data);
+                view.hideColumns([3,4]);
+                return view;
+            });
+            confirmedController.redraw();
 
             var options = {
                     title: '\u521d\u6b65\u53ca\u5448\u5831',
@@ -251,35 +287,83 @@
             view.hideColumns([1,2,5,6,7,8,9,10])
             chart.draw(view, options);
             
+            initSlider(data)
         }
 
+
+        function initSlider(data){
+            var dateSlider = document.getElementById('chart_slider');
+            start = data.getValue(0,0).getTime();
+            end = data.getValue(data.getNumberOfRows() - 1,0).getTime()
+            noUiSlider.create(dateSlider, {
+            // Create two timestamps to define a range.
+                range: {
+                    min: start,
+                    max: end
+                },
+
+            // Steps of one week
+                step: 24 * 60 * 60 * 1000,
+
+            // Two more timestamps indicate the handle starting positions.
+                start: [start, end],
+
+                tooltips: [dateFormatter, dateFormatter],
+
+            // No decimals
+                format: wNumb({
+                    decimals: 0
+                })
+            });
+            dateSlider.noUiSlider.on('set', function (values, handle) {
+                confirmedController.options.hAxis.viewWindow.min = new Date(parseInt(values[0]));
+                confirmedController.options.hAxis.viewWindow.max = new Date(parseInt(values[1]));
+                confirmedController.redraw();
+            });
+        }
+
+        function share(elementId) {
+            html2canvas(document.querySelector("#" + elementId)).then(canvas => {
+                    var img = canvas.toDataURL();
+                    SimpleLightbox.open({
+                        items: [img]
+                    });
+                });
+        }
     </script>
     <style>
     html, body{
         margin: 0;
         padding: 0;
         font-family: "Helvetica", sans-serif;
-        text-align: center;
-
     }
     .container{
         margin: 0 auto;
         width: 100%;
+        align-content: center;
     }
     .graph{
-        width: 100%;
+        margin: auto;
         height: 600px;
+    }
+    .spacer{
+        height: 10px;
+    }
+
+    #chart_slider{
+        margin: auto;
+        width: 75%;
     }
     </style>
   </head>
 
   <body>
     <div class="container">
-      <div id="confirmed" class="graph">
-      </div>
-      <div id="unconfirmed" class="graph">
-      </div>
-      <h2 id="message"></h2>
+        <div id="confirmed" class="graph"></div>
+        <div class="spacer"></div>
+        <div id="chart_slider"></div>
+        <div id="unconfirmed" class="graph">
+        </div>
     </div>
   </body>
 
