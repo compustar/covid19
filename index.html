@@ -249,7 +249,7 @@
                     easing: "out"
                 },
                 curveType: 'function',
-                legend: { position: 'bottom' },
+                legend: { position: 'right' },
                 hAxis: {
                     viewWindow: {
                         min: new Date(2020, 6, 5)
@@ -279,13 +279,20 @@
 
             var options = {
                     title: '\u521d\u6b65\u53ca\u5448\u5831',
+                    animation: {
+                        duration: 500,
+                        easing: "out"
+                    },
                     curveType: 'function',
-                    legend: { position: 'bottom' }
+                    legend: { position: 'right' }
                 };
             var chart = new google.visualization.ComboChart(document.getElementById('unconfirmed'));
-            var view = new google.visualization.DataView(data);
-            view.hideColumns([1,2,5,6,7,8,9,10])
-            chart.draw(view, options);
+            prelimController = new ChartController(chart, options, data, function(data){ 
+                var view = new google.visualization.DataView(data);
+                view.hideColumns([1,2,5,6,7,8,9,10])
+                return view;
+            });
+            prelimController.redraw();
             
             initSlider(data)
         }
@@ -330,6 +337,15 @@
                     });
                 });
         }
+
+        var windowResizeTimer;
+        window.addEventListener('resize', function(e){
+            clearTimeout(windowResizeTimer);
+            windowResizeTimer = setTimeout(function(){
+                confirmedController.redraw();
+                prelimController.redraw();
+            }, 250);
+        });
     </script>
     <style>
     html, body{
