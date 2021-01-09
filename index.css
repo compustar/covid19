@@ -1,0 +1,21 @@
+html, body{
+    margin: 0;
+    padding: 0;
+    font-family: "Helvetica", sans-serif;
+}
+.container{
+    margin: 0 auto;
+    width: 100%;
+}
+.graph{
+    margin: auto;
+    height: 600px;
+}
+.spacer{
+    height: 50px;
+}
+
+.slider{
+    margin: auto;
+    width: 75%;
+}

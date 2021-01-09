@@ -5,6 +5,7 @@
     <title>2019冠狀病毒病 - 香港慨況</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.3/nouislider.css" integrity="sha512-XXtRBFtk/QfR8GEWwQPYjrQBHQwjidXg0wo8HJi9YOaFycWqd2uWkjJoAyx8Mb/+H8uhvmf70EAIxDnQxrwrvw==" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-lightbox@2.1.0/dist/simpleLightbox.min.css">
+    <link rel="stylesheet" href="index.css">
 
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/regression/2.0.1/regression.min.js" integrity="sha512-0k6FXllQktdobw8Nc8KQN2WtZrOuxpMn7jC2RKCF6LR7EdOhhrg3H5cBPxhs3CFzQVlO6ni1B9SDLUPhBs0Alg==" crossorigin="anonymous"></script>
@@ -12,178 +13,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/wnumb/1.2.0/wNumb.min.js" integrity="sha512-igVQ7hyQVijOUlfg3OmcTZLwYJIBXU63xL9RC12xBHNpmGJAktDnzl9Iw0J4yrSaQtDxTTVlwhY730vphoVqJQ==" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.3/dist/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/simple-lightbox@2.1.0/src/simpleLightbox.min.js"></script>
-
+    <script src="utils.js"></script>
+    <script src="models.js"></script>
+    <script src="extensions.js"></script>
+    <script src="charts.js"></script>
     <script>
-        Date.prototype.addDays = function(days) {
-            var result = new Date(this);
-            result.setDate(this.getDate() + parseInt(days));
-            return result;
-        };
-
-        dateFormatter = {
-            from: function(value) {
-                return new Date(value.getYear() + "-" + value.getMonth() + "-" + value.getDate());
-            },
-            to: function(value) {
-                return new Date(value).toLocaleDateString("zh-HK", {dateStyle: "short"});
-            }
-        }
 
         google.charts.load('current', {
         'packages': ['corechart']
         });
 
-        google.charts.setOnLoadCallback(loadData);
+        google.charts.setOnLoadCallback(init);
 
-        function loadData() {
+        function init() {
+            initExtensions()
             var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=0&headers=1');
 
             // Send the query with a callback function.
             query.send(handleQueryResponse);
         };
-
-        function getAveragedValues(values, days) {
-            var n = values.length;
-            var result = [];
-            var sum_7d = 0;
-            for (var i = 0; i < days; i++) {
-                sum_7d += values[i];
-                result.push(null);
-            }
-            result[days - 1] = sum_7d/days;
-            for (var i = days; i < n; i++) {
-                sum_7d = sum_7d - values[i - days] + values[i];
-                result.push(sum_7d/days);
-            }
-            return result;
-        }
-
-        function getAverage(data, data_col, days){
-            var n = data.getNumberOfRows();
-            var result = [];
-            var sum_7d = 0;
-            for (var i = 0; i < days; i++) {
-                sum_7d += data.getValue(i, data_col);
-                result.push(null);
-            }
-            result[days - 1] = sum_7d/days;
-            for (var i = days; i < n; i++) {
-                sum_7d = sum_7d - data.getValue(i - days, data_col) + data.getValue(i, data_col);
-                result.push(sum_7d/days);
-            }
-            return result;
-        }
-
-        function LogModel(values, start, end) {
-            var data = [];
-            for (var i = start; i < Math.min(values.length, end); i++) {
-                data.push([i - start, Math.log(values[i])])
-            }
-
-            const myRegression = regression.polynomial(data, {
-                order: 2,
-                precision: 4
-            });
-
-            this.r2 = myRegression.r2;
-
-            this.rmse = 0;
-            n = myRegression.points.length;
-            for (var i = 0; i < n; i++) {
-                var e = values[i + start] - Math.exp(Math.log(myRegression.points[i][1]));
-                this.rmse += e**2;
-            }
-            this.rmse = Math.sqrt(this.rmse / n);
-
-            this.predict = function (a, b) {
-                var result = [];
-                for (var i = a; i <= b; i++) {
-                    result.push(Math.exp(myRegression.predict(i)[1]));
-                }
-                return result;
-            }
-        }
-
-        function RatioModel(values, start, end) {
-            var data = [];
-            values = getAveragedValues(values, 7)
-            for (var i = start; i < Math.min(values.length, end); i++) {
-                data.push([i - start, values[i]/values[i-1]])
-            }
-
-            const myRegression = regression.linear(data, { precision: 4 });
-
-            this.r2 = myRegression.r2;
-
-            this.rmse = 0;
-            n = myRegression.points.length;
-            var last = values[start - 4];
-            for (var i = 0; i < n; i++) {
-                var value = myRegression.points[i][1] * last;
-                var e = values[i + start] - value;
-                last = value;
-                this.rmse += e**2;
-            }
-            this.rmse = Math.sqrt(this.rmse / n);
-
-            this.predict = function (a, b) {
-                var result = [];
-                var lastValue = values[a + start - 4]
-                for (var i = a; i <= b; i++) {
-                    var value = myRegression.predict(i)[1] * lastValue;
-                    result.push(value);
-                    lastValue = value
-                }
-                return result;
-            }
-
-        }
-
-        function addAverage(data, data_col, days, columnName){
-            var values = getAverage(data, data_col, days);
-
-            addColumn(data, "number", values, columnName);
-        }
-
-        function addColumn(data, dataType, values, columnName) {
-            var col = data.getNumberOfColumns();
-            var rows = data.getNumberOfRows();
-            data.addColumn("number", columnName);
-            var lastDate = null;
-            for (var i = 0; i < values.length; i++) {
-                if (i >= rows) {
-                    var row = [];
-                    for (var j = 0; j <= col; j++) {
-                        row.push(null);
-                    }
-                    row[0] = lastDate.addDays(1);
-                    data.addRow(row)
-                }
-                data.setValue(i, col, values[i]);
-                lastDate = data.getValue(i, 0);
-            }
-        }
-
-        function getValues(data, col) {
-            var n = data.getNumberOfRows();
-            var result = [];
-            for (var i = 0; i < n; i++) {
-                result.push(data.getValue(i, col))
-            }
-            return result;
-        }
-
-        function predict(model, start) {
-            predicted = [];
-            for (var i = 0; i < start; i++) {
-                predicted.push(null);
-            }
-            var p = model.predict(1, 60);
-            for (var i = 0; i < p.length; i++) {
-                predicted.push(p[i])
-            }
-            return predicted;
-        }
 
         function estimate(values, modelClass, start, end, last) {
             var minError = 9999;
@@ -192,7 +40,6 @@
 
             for (var i = start; i < end; i++) {
                 logModel = new modelClass(values, i, last);
-                console.log(logModel.rmse);
                 if (logModel.rmse < minError) {
                     minModel = logModel;
                     minError = logModel.rmse;
@@ -203,130 +50,37 @@
         }
 
         function addPredictedValues(data, col, label, start, end, last) {
-            var values = getValues(data, col)
+            var indices = data.getColumnIndices();
+            var values = data.getValues(col)
 
             var models = [LogModel, RatioModel];
             for (var i = 0; i < models.length; i++) {
                 var estimation = estimate(values, models[i], start, end, last);
                 console.log(estimation)
                 model = estimation.model
-                var predicted = predict(model, estimation.start);
-                addColumn(data, "number", predicted, label + "_" + (i + 1));
-            }
-        }
-
-        function ChartController(chart, options, data, viewFactory) {
-            var view = viewFactory(data);
-            this.options = options;
-            this.redraw = function (newData) {
-                if (newData) {
-                    view = viewFactory(newData);
+                var predicted = model.predict(1, 60);
+                var col = 0;
+                var colLabel = label + "_" + (i + 1);
+                if (!!!indices[colLabel]) {
+                    col = data.addColumn("number", colLabel);
+                } else {
+                    col = indices[colLabel];
                 }
-                chart.draw(view, options);
+                data.setValues(col, estimation.start, predicted, new RowFactory())
             }
         }
 
-        confirmedController = null;
+        chartControllers = []
 
         function handleQueryResponse(response) {
             if (response.isError()) {
                 alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
                 return;
             }
-
-            data = response.getDataTable();
-            addAverage(data, 1, 7, "7d_actual_avg");
-            addAverage(data, 2, 7, "7d_unlinked_avg");
-            last = data.getNumberOfRows();
-            addPredictedValues(data, 1, "predicted", 140, 160, last);
-            addPredictedValues(data, 2, "predicted_unlinked", 140, 160, last);
-
-            var chart = new google.visualization.ComboChart(document.getElementById('confirmed'));
-            var options = {
-                title: '\u672c\u5730\u500b\u6848',
-                animation: {
-                    duration: 500,
-                    easing: "out"
-                },
-                curveType: 'function',
-                legend: { position: 'right' },
-                hAxis: {
-                    viewWindow: {
-                        min: new Date(2020, 6, 5)
-                    }
-                },
-                vAxis: {
-                    viewWindow: {
-                        min: 0
-                    }
-                },
-                series: {
-                    2: { lineDashStyle: [10, 2] },
-                    3: { lineDashStyle: [10, 2] },
-                    4: { lineDashStyle: [2, 2] },
-                    5: { lineDashStyle: [2, 2] },
-                    6: { lineDashStyle: [2, 2] },
-                    7: { lineDashStyle: [2, 2] },
-                }
-            };
-
-            confirmedController = new ChartController(chart, options, data, function(data){ 
-                var view = new google.visualization.DataView(data);
-                view.hideColumns([3,4]);
-                return view;
-            });
-            confirmedController.redraw();
-
-            var options = {
-                    title: '\u521d\u6b65\u53ca\u5448\u5831',
-                    animation: {
-                        duration: 500,
-                        easing: "out"
-                    },
-                    curveType: 'function',
-                    legend: { position: 'right' }
-                };
-            var chart = new google.visualization.ComboChart(document.getElementById('unconfirmed'));
-            prelimController = new ChartController(chart, options, data, function(data){ 
-                var view = new google.visualization.DataView(data);
-                view.hideColumns([1,2,5,6,7,8,9,10])
-                return view;
-            });
-            prelimController.redraw();
-            
-            initSlider(data)
-        }
-
-
-        function initSlider(data){
-            var dateSlider = document.getElementById('chart_slider');
-            start = data.getValue(0,0).getTime();
-            end = data.getValue(data.getNumberOfRows() - 1,0).getTime()
-            noUiSlider.create(dateSlider, {
-            // Create two timestamps to define a range.
-                range: {
-                    min: start,
-                    max: end
-                },
-
-            // Steps of one week
-                step: 24 * 60 * 60 * 1000,
-
-            // Two more timestamps indicate the handle starting positions.
-                start: [start, end],
-
-                tooltips: [dateFormatter, dateFormatter],
-
-            // No decimals
-                format: wNumb({
-                    decimals: 0
-                })
-            });
-            dateSlider.noUiSlider.on('set', function (values, handle) {
-                confirmedController.options.hAxis.viewWindow.min = new Date(parseInt(values[0]));
-                confirmedController.options.hAxis.viewWindow.max = new Date(parseInt(values[1]));
-                confirmedController.redraw();
-            });
+            data = prepareData(response);
+            chartControllers.push(prepareConfirmedChart(data.base));
+            chartControllers.push(preparePrelimChart(data.base));
+            chartControllers.push(prepareUnlinkedRatioChart(data.base));
         }
 
         function share(elementId) {
@@ -342,43 +96,22 @@
         window.addEventListener('resize', function(e){
             clearTimeout(windowResizeTimer);
             windowResizeTimer = setTimeout(function(){
-                confirmedController.redraw();
-                prelimController.redraw();
+                for (var i = 0; i < chartControllers.length; i++) {
+                    chartControllers[i].redraw();
+                }
             }, 250);
         });
     </script>
-    <style>
-    html, body{
-        margin: 0;
-        padding: 0;
-        font-family: "Helvetica", sans-serif;
-    }
-    .container{
-        margin: 0 auto;
-        width: 100%;
-        align-content: center;
-    }
-    .graph{
-        margin: auto;
-        height: 600px;
-    }
-    .spacer{
-        height: 10px;
-    }
-
-    #chart_slider{
-        margin: auto;
-        width: 75%;
-    }
-    </style>
   </head>
 
   <body>
     <div class="container">
-        <div id="confirmed" class="graph"></div>
         <div class="spacer"></div>
-        <div id="chart_slider"></div>
+        <div id="chart_slider" class="slider"></div>
+        <div id="confirmed" class="graph"></div>
+        <div id="unlinked_ratio" class="graph"></div>
         <div id="unconfirmed" class="graph">
+            
         </div>
     </div>
   </body>
