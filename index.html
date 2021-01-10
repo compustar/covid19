@@ -30,6 +30,7 @@
 
             // Send the query with a callback function.
             query.send(handleQueryResponse);
+
         };
 
         function estimate(values, modelClass, start, end, last) {
@@ -83,18 +84,8 @@
                 { factory: preparePrelimChart, data: data.base, containerId: "unconfirmed", sliderId: "chart_slider"},
             ];
         
-            initedSlider = {}
             for (var i = 0; i < charts.length; i++) {
-                var controller = charts[i].factory(charts[i].data, charts[i].containerId);
-                var sliderId = charts[i].sliderId;
-                if (sliderId) {
-                    if (initedSlider[sliderId]) {
-                        controller.initSlider(sliderId, true);
-                    } else {
-                        controller.initSlider(sliderId);
-                        initedSlider[sliderId] = true;
-                    }
-                }
+                var controller = ChartController.create(charts[i])
                 chartControllers.push(controller);
             }
         }

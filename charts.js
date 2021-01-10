@@ -29,6 +29,7 @@ function ChartController(chartElement, chart, data, viewFactory) {
             easing: "out"
         },
         hAxis:{
+            format: 'd MMM yyyy',
             viewWindow: {
                 min: new Date(2020, 6, 5)
             }
@@ -94,6 +95,21 @@ function ChartController(chartElement, chart, data, viewFactory) {
 
     });
 
+}
+
+ChartController.initedSliders = {}
+ChartController.create = function (parameters) {
+    var controller = parameters.factory(parameters.data, parameters.containerId);
+    var sliderId = parameters.sliderId;
+    if (sliderId) {
+        if (ChartController.initedSliders[sliderId]) {
+            controller.initSlider(sliderId, true);
+        } else {
+            controller.initSlider(sliderId);
+            ChartController.initedSliders[sliderId] = true;
+        }
+    }
+    return controller;
 }
 
 function prepareData(response) {
