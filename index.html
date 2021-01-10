@@ -4,15 +4,14 @@
   <head>
     <title>2019冠狀病毒病 - 香港慨況</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.3/nouislider.css" integrity="sha512-XXtRBFtk/QfR8GEWwQPYjrQBHQwjidXg0wo8HJi9YOaFycWqd2uWkjJoAyx8Mb/+H8uhvmf70EAIxDnQxrwrvw==" crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-lightbox@2.1.0/dist/simpleLightbox.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/SimpleLightbox/2.1.0/simpleLightbox.min.css" integrity="sha512-8ou7fcyycqNuFpv9eBUT7lvFnZ/tHM7Of3qOCjxPYKBUYYuQdrbJnWH61dAez1M2p3C42GKN1m6xc/UQgfdo0w==" crossorigin="anonymous" />
     <link rel="stylesheet" href="index.css">
 
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/regression/2.0.1/regression.min.js" integrity="sha512-0k6FXllQktdobw8Nc8KQN2WtZrOuxpMn7jC2RKCF6LR7EdOhhrg3H5cBPxhs3CFzQVlO6ni1B9SDLUPhBs0Alg==" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.3/nouislider.min.js" integrity="sha512-EnXkkBUGl2gBm/EIZEgwWpQNavsnBbeMtjklwAa7jLj60mJk932aqzXFmdPKCG6ge/i8iOCK0Uwl1Qp+S0zowg==" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/wnumb/1.2.0/wNumb.min.js" integrity="sha512-igVQ7hyQVijOUlfg3OmcTZLwYJIBXU63xL9RC12xBHNpmGJAktDnzl9Iw0J4yrSaQtDxTTVlwhY730vphoVqJQ==" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.3/dist/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/simple-lightbox@2.1.0/src/simpleLightbox.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/SimpleLightbox/2.1.0/simpleLightbox.min.js" integrity="sha512-OYtVuAy6KSuCAf0HG9j12VF96ehWm00yWBkYAqwzOkGV4WLPCWlOY1q1C3Mr4ouohyL5vEPqTulTyDlT7AHoGQ==" crossorigin="anonymous"></script>
     <script src="utils.js"></script>
     <script src="models.js"></script>
     <script src="extensions.js"></script>
@@ -56,7 +55,6 @@
             var models = [LogModel, RatioModel];
             for (var i = 0; i < models.length; i++) {
                 var estimation = estimate(values, models[i], start, end, last);
-                console.log(estimation)
                 model = estimation.model
                 var predicted = model.predict(1, 60);
                 var col = 0;
@@ -78,9 +76,27 @@
                 return;
             }
             data = prepareData(response);
-            chartControllers.push(prepareConfirmedChart(data.base));
-            chartControllers.push(preparePrelimChart(data.base));
-            chartControllers.push(prepareUnlinkedRatioChart(data.base));
+
+            charts = [
+                { factory: prepareConfirmedChart, data: data.base, containerId: "confirmed", sliderId: "chart_slider"},
+                { factory: prepareUnlinkedRatioChart, data: data.base, containerId: "unlinked_ratio", sliderId: "chart_slider"},
+                { factory: preparePrelimChart, data: data.base, containerId: "unconfirmed", sliderId: "chart_slider"},
+            ];
+        
+            initedSlider = {}
+            for (var i = 0; i < charts.length; i++) {
+                var controller = charts[i].factory(charts[i].data, charts[i].containerId);
+                var sliderId = charts[i].sliderId;
+                if (sliderId) {
+                    if (initedSlider[sliderId]) {
+                        controller.initSlider(sliderId, true);
+                    } else {
+                        controller.initSlider(sliderId);
+                        initedSlider[sliderId] = true;
+                    }
+                }
+                chartControllers.push(controller);
+            }
         }
 
         function share(elementId) {

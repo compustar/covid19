@@ -7,7 +7,7 @@ dateFormatter = {
     }
 }
 
-function ChartController(chart, data, viewFactory) {
+function ChartController(chartElement, chart, data, viewFactory) {
     var view = data;
     if (!!viewFactory) {
         view = viewFactory(data);
@@ -81,6 +81,19 @@ function ChartController(chart, data, viewFactory) {
             controller.redraw();
         });
     }
+
+    this.getImageURI = function () {
+        return chart.getImageURI();
+    }
+
+    chartElement.addEventListener('dblclick', function(e){
+        var img = controller.getImageURI();
+        SimpleLightbox.open({
+            items: [img]
+        });
+
+    });
+
 }
 
 function prepareData(response) {
@@ -94,19 +107,25 @@ function prepareData(response) {
     addPredictedValues(data, 2, "predicted_unlinked", 16, 26, 84);
     addPredictedValues(data, 2, "predicted_unlinked", 140, 160, last);
     result.base = data;
+
     return result;
 }
 
-function prepareConfirmedChart(data){
-
-    var chart = new google.visualization.ComboChart(document.getElementById('confirmed'));
-    controller = new ChartController(chart, data, function(data){ 
+function prepareConfirmedChart(data, elementId){
+    var chartElement = document.getElementById(elementId);
+    var chart = new google.visualization.ComboChart(chartElement);
+    controller = new ChartController(chartElement, chart, data, function(data){ 
         var view = new google.visualization.DataView(data);
         view.hideColumns([3,4]);
         return view;
     });
     controller.options.title = '\u672c\u5730\u500b\u6848';
     controller.options.curveType = 'function';
+    controller.options.chartArea.right = 130;
+    controller.options.legend.position = "right"
+    controller.options.legend.textStyle = {
+        fontSize: 9
+      };
     controller.options.series = {
         2: { lineDashStyle: [10, 2] },
         3: { lineDashStyle: [10, 2] },
@@ -117,13 +136,13 @@ function prepareConfirmedChart(data){
     };
     
     controller.redraw();
-    controller.initSlider('chart_slider')
     return controller;
 }
 
-function preparePrelimChart(data){
-    var chart = new google.visualization.ComboChart(document.getElementById('unconfirmed'));
-    var controller = new ChartController(chart, data, function(data){ 
+function preparePrelimChart(data, elementId){
+    var chartElement = document.getElementById(elementId);
+    var chart = new google.visualization.ComboChart(chartElement);
+    var controller = new ChartController(chartElement, chart, data, function(data){ 
         var view = new google.visualization.DataView(data);
         view.hideColumns([1,2,5,6,7,8,9,10])
         return view;
@@ -132,11 +151,10 @@ function preparePrelimChart(data){
     controller.options.curveType = 'function';
 
     controller.redraw();
-    controller.initSlider('chart_slider', true);
     return controller;
 }
 
-function prepareUnlinkedRatioChart(data){
+function prepareUnlinkedRatioChart(data, elementId){
     var dt = new google.visualization.DataTable();
     dt.addColumn('date', 'Date');
     dt.addColumn('number', 'Ratio');
@@ -150,14 +168,14 @@ function prepareUnlinkedRatioChart(data){
     }
     var formatter = new google.visualization.NumberFormat({pattern: '#%'});
     formatter.format(dt, 1);
-    var chart = new google.visualization.ComboChart(document.getElementById('unlinked_ratio'));
-    var controller = new ChartController(chart, dt);
+    var chartElement = document.getElementById(elementId);
+    var chart = new google.visualization.ComboChart(chartElement);
+    var controller = new ChartController(chartElement, chart, dt);
 
     controller.options.title = '\u0055\u006e\u006c\u0069\u006e\u006b\u0065\u0064\u6bd4\u4f8b';
     controller.options.vAxis.viewWindow.max = 1
     controller.options.vAxis.format = 'percent'
 
     controller.redraw();
-    controller.initSlider('chart_slider', true);
     return controller;
 }

@@ -13,10 +13,8 @@ html, body{
 .graph{
     margin: 0 auto;
     height: 400px;
-    width: 50%;
+    width: 100%;
     min-width: 530px;
-    /* 
-    float: left; */
 }
 .spacer{
     height: 50px;
