@@ -191,7 +191,34 @@ function prepareUnlinkedRatioChart(data, elementId){
     controller.options.title = '\u0055\u006e\u006c\u0069\u006e\u006b\u0065\u0064\u6bd4\u4f8b';
     controller.options.vAxis.viewWindow.max = 1
     controller.options.vAxis.format = 'percent'
+    controller.options.legend = 'none';
 
     controller.redraw();
+    return controller;
+}
+
+function prepareRtChart(data, elementId){
+    var json = JSON.parse(data.toJSON());
+    
+    json.cols[2].role = 'interval';
+    json.cols[3].role = 'interval';
+    var dt = new google.visualization.DataTable(json);
+    var dv = new google.visualization.DataView(dt);
+    dv.setColumns([0,{
+        type: 'number',
+        calc: function () {
+            return 1;
+        }},1,2,3
+    ])
+    var chartElement = document.getElementById(elementId);
+    var chart = new google.visualization.LineChart(chartElement);
+    var controller = new ChartController(chartElement, chart, dv);
+
+    controller.options.title = 'Effective Production Rate (Rt)';
+    controller.options.intervals = { 'style':'area' };
+    controller.options.legend = 'none';
+    controller.options.series = {
+        0: { lineDashStyle: [10, 2] }
+    };    controller.redraw();
     return controller;
 }

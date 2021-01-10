@@ -29,8 +29,10 @@
             var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=0&headers=1');
 
             // Send the query with a callback function.
-            query.send(handleQueryResponse);
+            query.send(handleQueryBaseResponse);
 
+            query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=1283651191&headers=1');
+            query.send(handleQueryRtResponse);
         };
 
         function estimate(values, modelClass, start, end, last) {
@@ -71,7 +73,7 @@
 
         chartControllers = []
 
-        function handleQueryResponse(response) {
+        function handleQueryBaseResponse(response) {
             if (response.isError()) {
                 alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
                 return;
@@ -90,13 +92,21 @@
             }
         }
 
-        function share(elementId) {
-            html2canvas(document.querySelector("#" + elementId)).then(canvas => {
-                    var img = canvas.toDataURL();
-                    SimpleLightbox.open({
-                        items: [img]
-                    });
-                });
+        function handleQueryRtResponse(response) {
+            if (response.isError()) {
+                alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+                return;
+            }
+            data = response.getDataTable();
+
+            charts = [
+                { factory: prepareRtChart, data: data, containerId: "rt", sliderId: "chart_slider"},
+            ];
+        
+            for (var i = 0; i < charts.length; i++) {
+                var controller = ChartController.create(charts[i])
+                chartControllers.push(controller);
+            }
         }
 
         var windowResizeTimer;
@@ -118,6 +128,7 @@
         <div id="confirmed" class="graph"></div>
         <div id="unlinked_ratio" class="graph"></div>
         <div id="unconfirmed" class="graph"></div>
+        <div id="rt" class="graph"></div>
     </div>
   </body>
 
