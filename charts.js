@@ -214,7 +214,7 @@ function prepareRtChart(data, elementId){
     var chart = new google.visualization.LineChart(chartElement);
     var controller = new ChartController(chartElement, chart, dv);
 
-    controller.options.title = 'Effective Production Rate (Rt)';
+    controller.options.title = 'Effective Reproduction Rate (Rt)';
     controller.options.intervals = { 'style':'area' };
     controller.options.legend = 'none';
     controller.options.series = {
