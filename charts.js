@@ -238,7 +238,7 @@ function prepareDistrictChart(data, elementId){
 
     controller.options.title = '\u904e\u53bb\u0031\u0034\u65e5\u78ba\u8a3a\u8005\u6240\u4f4f\u5730\u5340';
     controller.options.trendlines = { 0: {opacity: 0.2} }
-    delete controller.options.hAxis;
+    controller.options.hAxis = {title: '\u4eba\u53e3\u5bc6\u5ea6\u0020\u0028\u6bcf\u5e73\u65b9\u516c\u91cc\u0029'};
     controller.redraw();
     return controller;
 }
