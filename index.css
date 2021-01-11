@@ -8,13 +8,12 @@ html, body{
     width: 100%;
     display: grid;
     align-items: center;
-    grid-template-columns: repeat(auto-fit, minmax(530px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(650px, 1fr));
 }
 .graph{
     margin: 0 auto;
-    height: 400px;
+    height: 500px;
     width: 100%;
-    min-width: 530px;
 }
 .spacer{
     height: 50px;

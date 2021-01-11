@@ -9,7 +9,7 @@ function initExtensions(){
     };
     
     google.visualization.DataTable.prototype.setValues = function (col, start, values, rowFactory) {
-        var rows = data.getNumberOfRows();
+        var rows = this.getNumberOfRows();
         for (var i = 0; i < values.length; i++) {
             if (start + i >= rows) {
                 this.addRow(rowFactory.newRow(this));
@@ -31,7 +31,7 @@ function initExtensions(){
 
     google.visualization.DataTable.prototype.getColumnIndices = function () {
         var result = {};
-        for (var i = 0, cols = data.getNumberOfColumns(); i < cols; i++) {
+        for (var i = 0, cols = this.getNumberOfColumns(); i < cols; i++) {
             result[this.getColumnLabel(i)] = i;
         }
         return result;

@@ -112,9 +112,28 @@ ChartController.create = function (parameters) {
     return controller;
 }
 
-function prepareData(response) {
-    var result = {};
-    data = response.getDataTable();
+
+function addPredictedValues(data, col, label, start, end, last) {
+    var indices = data.getColumnIndices();
+    var values = data.getValues(col)
+
+    var models = [LogModel, RatioModel];
+    for (var i = 0; i < models.length; i++) {
+        var estimation = estimate(values, models[i], start, end, last);
+        model = estimation.model
+        var predicted = model.predict(1, 60);
+        var col = 0;
+        var colLabel = label + "_" + (i + 1);
+        if (!!!indices[colLabel]) {
+            col = data.addColumn("number", colLabel);
+        } else {
+            col = indices[colLabel];
+        }
+        data.setValues(col, estimation.start, predicted, new RowFactory())
+    }
+}
+
+function prepareBaseData(data) {
     data.addAverage(1, 7, "7d_actual_avg");
     data.addAverage(2, 7, "7d_unlinked_avg");
     last = data.getNumberOfRows();
@@ -122,9 +141,13 @@ function prepareData(response) {
     addPredictedValues(data, 1, "predicted", 140, 160, last);
     addPredictedValues(data, 2, "predicted_unlinked", 16, 26, 84);
     addPredictedValues(data, 2, "predicted_unlinked", 140, 160, last);
-    result.base = data;
+    return data;
+}
 
-    return result;
+function prepareMobilityData(data) {
+    data.addAverage(1, 7, "7d_driving_avg");
+    data.addAverage(2, 7, "7d_walking_avg");
+    return data;
 }
 
 function prepareConfirmedChart(data, elementId){
@@ -239,6 +262,23 @@ function prepareDistrictChart(data, elementId){
     controller.options.title = '\u904e\u53bb\u0031\u0034\u65e5\u78ba\u8a3a\u8005\u6240\u4f4f\u5730\u5340';
     controller.options.trendlines = { 0: {opacity: 0.2} }
     controller.options.hAxis = {title: '\u4eba\u53e3\u5bc6\u5ea6\u0020\u0028\u6bcf\u5e73\u65b9\u516c\u91cc\u0029'};
+    controller.redraw();
+    return controller;
+}
+
+function prepareMobilityChart(data, elementId){
+    var chartElement = document.getElementById(elementId);
+    var chart = new google.visualization.ComboChart(chartElement);
+    controller = new ChartController(chartElement, chart, data);
+    controller.options.title = 'Mobility';
+    controller.options.curveType = 'function';
+    controller.options.series = {
+        0: { lineWidth: 1, lineDashStyle: [1, 1] },
+        1: { lineWidth: 1, lineDashStyle: [1, 1] },
+        2: { lineWidth: 3 },
+        3: { lineWidth: 3 },
+    };
+    
     controller.redraw();
     return controller;
 }

@@ -26,9 +26,8 @@
 
         function init() {
             initExtensions()
-            var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=0&headers=1');
 
-            // Send the query with a callback function.
+            var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=0&headers=1');
             query.send(handleQueryBaseResponse);
 
             query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=1524525805&headers=1&range=A22:F40');
@@ -51,85 +50,71 @@
             return {model: minModel, start: minStart};
         }
 
-        function addPredictedValues(data, col, label, start, end, last) {
-            var indices = data.getColumnIndices();
-            var values = data.getValues(col)
-
-            var models = [LogModel, RatioModel];
-            for (var i = 0; i < models.length; i++) {
-                var estimation = estimate(values, models[i], start, end, last);
-                model = estimation.model
-                var predicted = model.predict(1, 60);
-                var col = 0;
-                var colLabel = label + "_" + (i + 1);
-                if (!!!indices[colLabel]) {
-                    col = data.addColumn("number", colLabel);
-                } else {
-                    col = indices[colLabel];
-                }
-                data.setValues(col, estimation.start, predicted, new RowFactory())
-            }
-        }
-
         chartControllers = []
 
         function handleQueryBaseResponse(response) {
-            if (response.isError()) {
-                alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
-                return;
-            }
-            data = prepareData(response);
-
             charts = [
-                { factory: prepareConfirmedChart, data: data.base, containerId: "confirmed", sliderId: "chart_slider"},
-                { factory: prepareUnlinkedRatioChart, data: data.base, containerId: "unlinked_ratio", sliderId: "chart_slider"},
-                { factory: preparePrelimChart, data: data.base, containerId: "unconfirmed", sliderId: "chart_slider"},
+                { factory: prepareConfirmedChart, containerId: "confirmed", sliderId: "chart_slider"},
+                { factory: prepareUnlinkedRatioChart, containerId: "unlinked_ratio", sliderId: "chart_slider"},
+                { factory: preparePrelimChart, containerId: "unconfirmed", sliderId: "chart_slider"},
             ];
-        
-            for (var i = 0; i < charts.length; i++) {
-                var controller = ChartController.create(charts[i])
-                chartControllers.push(controller);
-            }
-        }
 
-        function handleQueryRtResponse(response) {
-            if (response.isError()) {
-                alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
-                return;
-            }
-            data = response.getDataTable();
-
-            charts = [
-                { factory: prepareRtChart, data: data, containerId: "rt", sliderId: "chart_slider"},
-            ];
-        
-            for (var i = 0; i < charts.length; i++) {
-                var controller = ChartController.create(charts[i])
-                chartControllers.push(controller);
-            }
-        }
-
-        function handleQueryDistrictResponse(response) {
-            if (response.isError()) {
-                alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
-                return;
-            }
-            data = response.getDataTable();
-
-            console.log(data)
-            charts = [
-                { factory: prepareDistrictChart, data: data, containerId: "district"},
-            ];
-        
-            for (var i = 0; i < charts.length; i++) {
-                var controller = ChartController.create(charts[i])
-                chartControllers.push(controller);
-            }
+            handleResponse(response, 
+                        prepareBaseData, 
+                        charts);
 
             var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=1283651191&headers=1');
             query.send(handleQueryRtResponse);
 
+            var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=1221452521&headers=1');
+            query.send(handleQueryMobilityResponse);
         }
+
+        function handleQueryRtResponse(response) {
+            handleResponse(response, 
+                null, 
+                { factory: prepareRtChart, data: data, containerId: "rt", sliderId: "chart_slider"});
+        }
+
+        function handleQueryDistrictResponse(response) {
+            handleResponse(response, 
+                null, 
+                { factory: prepareDistrictChart, containerId: "district"});
+        }
+
+        function handleQueryMobilityResponse(response) {
+            handleResponse(response, 
+                prepareMobilityData, 
+                { factory: prepareMobilityChart, containerId: "mobility", sliderId: "chart_slider"});
+        }
+
+        function handleResponse(response, dataHandler, charts) {
+            if (response.isError()) {
+                alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+                return;
+            }
+
+            if (!!dataHandler) {
+                data = dataHandler(response.getDataTable());
+            } else {
+                data = response.getDataTable();
+            }
+
+            if (!Array.isArray(charts)) {
+                charts.data = data;
+                charts = [charts];
+            } else {
+                for (var i = 0; i < charts.length; i++) {
+                    charts[i].data = data;
+                }
+            }
+
+            for (var i = 0; i < charts.length; i++) {
+                var controller = ChartController.create(charts[i])
+                chartControllers.push(controller);
+            }
+        }
+
 
         var windowResizeTimer;
         window.addEventListener('resize', function(e){
@@ -151,6 +136,7 @@
         <div id="unlinked_ratio" class="graph"></div>
         <div id="unconfirmed" class="graph"></div>
         <div id="rt" class="graph"></div>
+        <div id="mobility" class="graph"></div>
         <div id="district" class="graph"></div>
     </div>
   </body>
