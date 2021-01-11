@@ -219,6 +219,26 @@ function prepareRtChart(data, elementId){
     controller.options.legend = 'none';
     controller.options.series = {
         0: { lineDashStyle: [10, 2] }
-    };    controller.redraw();
+    };
+    controller.redraw();
+    return controller;
+}
+
+function prepareDistrictChart(data, elementId){
+    var json = JSON.parse(data.toJSON());
+    
+    json.cols[0].role = 'annotation';    
+
+    var dt = new google.visualization.DataTable(json);
+    var dv = new google.visualization.DataView(dt);
+    dv.setColumns([1, 5, 0, 2, 3, 4])
+    var chartElement = document.getElementById(elementId);
+    var chart = new google.visualization.ScatterChart(chartElement);
+    var controller = new ChartController(chartElement, chart, dv);
+
+    controller.options.title = '\u904e\u53bb\u0031\u0034\u65e5\u78ba\u8a3a\u8005\u6240\u4f4f\u5730\u5340';
+    controller.options.trendlines = { 0: {opacity: 0.2} }
+    delete controller.options.hAxis;
+    controller.redraw();
     return controller;
 }

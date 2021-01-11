@@ -33,6 +33,9 @@
 
             query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=1283651191&headers=1');
             query.send(handleQueryRtResponse);
+
+            query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=1524525805&headers=1&range=A22:F40');
+            query.send(handleQueryDistrictResponse);
         };
 
         function estimate(values, modelClass, start, end, last) {
@@ -109,6 +112,24 @@
             }
         }
 
+        function handleQueryDistrictResponse(response) {
+            if (response.isError()) {
+                alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+                return;
+            }
+            data = response.getDataTable();
+
+            console.log(data)
+            charts = [
+                { factory: prepareDistrictChart, data: data, containerId: "district"},
+            ];
+        
+            for (var i = 0; i < charts.length; i++) {
+                var controller = ChartController.create(charts[i])
+                chartControllers.push(controller);
+            }
+        }
+
         var windowResizeTimer;
         window.addEventListener('resize', function(e){
             clearTimeout(windowResizeTimer);
@@ -129,6 +150,7 @@
         <div id="unlinked_ratio" class="graph"></div>
         <div id="unconfirmed" class="graph"></div>
         <div id="rt" class="graph"></div>
+        <div id="district" class="graph"></div>
     </div>
   </body>
 
