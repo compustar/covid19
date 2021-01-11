@@ -31,9 +31,6 @@
             // Send the query with a callback function.
             query.send(handleQueryBaseResponse);
 
-            query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=1283651191&headers=1');
-            query.send(handleQueryRtResponse);
-
             query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=1524525805&headers=1&range=A22:F40');
             query.send(handleQueryDistrictResponse);
         };
@@ -128,6 +125,10 @@
                 var controller = ChartController.create(charts[i])
                 chartControllers.push(controller);
             }
+
+            var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=1283651191&headers=1');
+            query.send(handleQueryRtResponse);
+
         }
 
         var windowResizeTimer;
