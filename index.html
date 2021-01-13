@@ -34,22 +34,6 @@
             query.send(handleQueryDistrictResponse);
         };
 
-        function estimate(values, modelClass, start, end, last) {
-            var minError = 9999;
-            var minModel = null;
-            var minStart = start
-
-            for (var i = start; i < end; i++) {
-                logModel = new modelClass(values, i, last);
-                if (logModel.rmse < minError) {
-                    minModel = logModel;
-                    minError = logModel.rmse;
-                    minStart = i;
-                }
-            }
-            return {model: minModel, start: minStart};
-        }
-
         chartControllers = []
 
         function handleQueryBaseResponse(response) {

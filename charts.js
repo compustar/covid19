@@ -112,8 +112,28 @@ ChartController.create = function (parameters) {
     return controller;
 }
 
+function estimate(values, modelClass, start, end, last) {
+    var minError = 9999;
+    var minModel = null;
+    var minStart = start
 
-function addPredictedValues(data, col, label, start, end, last) {
+    for (var j = 0; j < 5; j++) {
+        for (var i = start; i < end; i++) {
+            model = new modelClass(values, i, last - j);
+            if (model.gradient < 0 && model.rmse < minError) {
+                minModel = model;
+                minError = model.rmse;
+                minStart = i;
+            }
+        }
+        if (!!minModel) {
+            break;
+        }
+    }
+    return {model: minModel, start: minStart};
+}
+
+function addPredictedValues(data, col, label, start, end, last, extend) {
     var indices = data.getColumnIndices();
     var values = data.getValues(col)
 
@@ -121,7 +141,7 @@ function addPredictedValues(data, col, label, start, end, last) {
     for (var i = 0; i < models.length; i++) {
         var estimation = estimate(values, models[i], start, end, last);
         model = estimation.model
-        var predicted = model.predict(1, 60);
+        var predicted = model.predict(1, last + extend - estimation.start);
         var col = 0;
         var colLabel = label + "_" + (i + 1);
         if (!!!indices[colLabel]) {
@@ -137,10 +157,10 @@ function prepareBaseData(data) {
     data.addAverage(1, 7, "7d_actual_avg");
     data.addAverage(2, 7, "7d_unlinked_avg");
     last = data.getNumberOfRows();
-    addPredictedValues(data, 1, "predicted", 16, 26, 84);
-    addPredictedValues(data, 1, "predicted", 140, 160, last);
-    addPredictedValues(data, 2, "predicted_unlinked", 16, 26, 84);
-    addPredictedValues(data, 2, "predicted_unlinked", 140, 160, last);
+    addPredictedValues(data, 1, "predicted", 16, 26, 84, 0);
+    addPredictedValues(data, 1, "predicted", 140, 160, last, 30);
+    addPredictedValues(data, 2, "predicted_unlinked", 16, 26, 84, 0);
+    addPredictedValues(data, 2, "predicted_unlinked", 140, 160, last, 30);
     return data;
 }
 

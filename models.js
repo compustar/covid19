@@ -26,6 +26,8 @@ function LogModel(values, start, end) {
         }
         return result;
     }
+
+    this.gradient = myRegression.equation[0];
 }
 
 function RatioModel(values, start, end) {
@@ -61,4 +63,5 @@ function RatioModel(values, start, end) {
         return result;
     }
 
+    this.gradient = myRegression.equation[0];
 }
