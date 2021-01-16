@@ -158,9 +158,11 @@ function prepareBaseData(data) {
     data.addAverage(2, 7, "7d_unlinked_avg");
     last = data.getNumberOfRows();
     addPredictedValues(data, 1, "predicted", 16, 26, 84, 0);
-    addPredictedValues(data, 1, "predicted", 140, 160, last, 30);
+    addPredictedValues(data, 1, "predicted", 140, 160, 187, 30);
+    addPredictedValues(data, 1, "predicted", 180, 190, last, 30);
     addPredictedValues(data, 2, "predicted_unlinked", 16, 26, 84, 0);
-    addPredictedValues(data, 2, "predicted_unlinked", 140, 160, last, 30);
+    addPredictedValues(data, 2, "predicted_unlinked", 140, 160, 187, 30);
+    addPredictedValues(data, 2, "predicted_unlinked", 180, 190, last, 30);
     return data;
 }
 
