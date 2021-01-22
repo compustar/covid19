@@ -52,6 +52,9 @@
 
             var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=1221452521&headers=1');
             query.send(handleQueryMobilityResponse);
+
+            var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=755906363&headers=1&range=A2:C');
+            query.send(handleQueryInboundOutboundPassengerResponse);
         }
 
         function handleQueryRtResponse(response) {
@@ -70,6 +73,12 @@
             handleResponse(response, 
                 prepareMobilityData, 
                 { factory: prepareMobilityChart, containerId: "mobility", sliderId: "chart_slider"});
+        }
+
+        function handleQueryInboundOutboundPassengerResponse(response) {
+            handleResponse(response, 
+                prepareInboundOutboundPassengerData, 
+                { factory: prepareInboundOutboundPassengerChart, containerId: "inboundOutboundPassenger", sliderId: "chart_slider"});
         }
 
         function handleResponse(response, dataHandler, charts) {
@@ -123,6 +132,7 @@
         <div id="mobility" class="graph"></div>
         <div id="district" class="graph"></div>
         <iframe src="https://www.google.com/maps/d/embed?mid=1oZ9O86PPd7adOTHcCm5JrxXXW6uAOI_q" width="100%" height="600"></iframe>
+        <div id="inboundOutboundPassenger" class="graph"></div>
     </div>
   </body>
 

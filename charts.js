@@ -174,6 +174,12 @@ function prepareMobilityData(data) {
     return data;
 }
 
+function prepareInboundOutboundPassengerData(data) {
+    data.addAverage(1, 7, "7d_inbound_avg");
+    data.addAverage(2, 7, "7d_outbound_avg");
+    return data;
+}
+
 function prepareConfirmedChart(data, elementId){
     var chartElement = document.getElementById(elementId);
     var chart = new google.visualization.ComboChart(chartElement);
@@ -295,6 +301,23 @@ function prepareMobilityChart(data, elementId){
     var chart = new google.visualization.ComboChart(chartElement);
     controller = new ChartController(chartElement, chart, data);
     controller.options.title = 'Mobility';
+    controller.options.curveType = 'function';
+    controller.options.series = {
+        0: { lineWidth: 1, lineDashStyle: [1, 1] },
+        1: { lineWidth: 1, lineDashStyle: [1, 1] },
+        2: { lineWidth: 3 },
+        3: { lineWidth: 3 },
+    };
+    
+    controller.redraw();
+    return controller;
+}
+
+function prepareInboundOutboundPassengerChart(data, elementId){
+    var chartElement = document.getElementById(elementId);
+    var chart = new google.visualization.ComboChart(chartElement);
+    controller = new ChartController(chartElement, chart, data);
+    controller.options.title = '\u51FA\u5165\u5883\u4EBA\u6B21';
     controller.options.curveType = 'function';
     controller.options.series = {
         0: { lineWidth: 1, lineDashStyle: [1, 1] },
