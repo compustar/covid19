@@ -141,15 +141,17 @@ function addPredictedValues(data, col, label, start, end, last, extend) {
     for (var i = 0; i < models.length; i++) {
         var estimation = estimate(values, models[i], start, end, last);
         model = estimation.model
-        var predicted = model.predict(1, last + extend - estimation.start);
-        var col = 0;
-        var colLabel = label + "_" + (i + 1);
-        if (!!!indices[colLabel]) {
-            col = data.addColumn("number", colLabel);
-        } else {
-            col = indices[colLabel];
+        if (!!model) {
+            var predicted = model.predict(1, last + extend - estimation.start);
+            var col = 0;
+            var colLabel = label + "_" + (i + 1);
+            if (!!!indices[colLabel]) {
+                col = data.addColumn("number", colLabel);
+            } else {
+                col = indices[colLabel];
+            }
+            data.setValues(col, estimation.start, predicted, new RowFactory())
         }
-        data.setValues(col, estimation.start, predicted, new RowFactory())
     }
 }
 
@@ -205,7 +207,7 @@ function preparePrelimChart(data, elementId){
     var chart = new google.visualization.ComboChart(chartElement);
     var controller = new ChartController(chartElement, chart, data, function(data){ 
         var view = new google.visualization.DataView(data);
-        view.hideColumns([1,2,5,6,7,8,9,10])
+        view.hideColumns([1,2,5,6,7,8,9,10,11,12])
         return view;
     });
     controller.options.title = '\u521d\u6b65\u53ca\u5448\u5831';
