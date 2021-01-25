@@ -250,6 +250,30 @@ function prepareUnlinkedRatioChart(data, elementId){
     return controller;
 }
 
+function preparePrelimVsConfirmed(data, elementId){
+    var dt = new google.visualization.DataTable();
+    dt.addColumn('number', 'Prelim previous day');
+    dt.addColumn('number', 'Confirmed cases');
+    var rows = data.getNumberOfRows();
+    for (var i = 0; i < rows - 1; i++) {
+        var prelim = data.getValue(i, 3);
+        var confirmed = data.getValue(i + 1, 1);
+        dt.addRow([prelim, confirmed])
+    }
+
+    var chartElement = document.getElementById(elementId);
+    var chart = new google.visualization.ScatterChart(chartElement);
+    var controller = new ChartController(chartElement, chart, dt);
+    controller.options.title = '\u521d\u6b65\u53ca\u7fcc\u65e5\u78ba\u8a3a';
+    controller.options.legend = "none";
+    controller.options.trendlines = { 0: {opacity: 0.2} }
+    controller.options.hAxis = {title: '\u521d\u6b65\u500b\u6848'};
+    controller.options.vAxis = {title: '\u7fcc\u65e5\u78ba\u8a3a'};
+
+    controller.redraw();
+    return controller;
+}
+
 function prepareRtChart(data, elementId){
     var json = JSON.parse(data.toJSON());
     

@@ -41,6 +41,7 @@
                 { factory: prepareConfirmedChart, containerId: "confirmed", sliderId: "chart_slider"},
                 { factory: prepareUnlinkedRatioChart, containerId: "unlinked_ratio", sliderId: "chart_slider"},
                 { factory: preparePrelimChart, containerId: "unconfirmed", sliderId: "chart_slider"},
+                { factory: preparePrelimVsConfirmed, containerId: "prelim_confirmed"},
             ];
 
             handleResponse(response, 
@@ -128,6 +129,7 @@
         <div id="confirmed" class="graph"></div>
         <div id="unlinked_ratio" class="graph"></div>
         <div id="unconfirmed" class="graph"></div>
+        <div id="prelim_confirmed" class="graph"></div>
         <div id="rt" class="graph"></div>
         <div id="mobility" class="graph"></div>
         <div id="district" class="graph"></div>
