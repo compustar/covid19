@@ -31,6 +31,7 @@ function groupByWeeklyView(dt) {
     var view = new google.visualization.DataView(data);
     var lastRow = Math.max(...view.getFilteredRows([{column: 0, maxValue: getWeek(new Date())}]));
     view.setRows(0, lastRow);
+    view.setColumns([0, 1, {calc:function(dt, row) {return dt.getValue(row, 1);}, type:'number', role: 'annotation'}]);
     return view;
 }
 
@@ -53,7 +54,7 @@ function groupByWeekdayView(dt, options) {
             [{'column': 1, 'aggregation': google.visualization.data.avg, 'type': 'number'}]
         );
     view = new google.visualization.DataView(group);
-    view.setColumns([{calc:getWeekDayColumn, type:'string', label:'Weekday'}, 1]);
+    view.setColumns([{calc:getWeekDayColumn, type:'string', label:'Weekday'}, 1, {calc:function(dt, row) {return dt.getValue(row, 1);}, type:'number', role: 'annotation'}]);
 
     return view;
 }
@@ -373,7 +374,7 @@ function prepareWeeklyChart(data, elementId){
     controller = new ChartController(chartElement, chart, data, groupByWeeklyView);
     controller.options.title = '\u6bcf\u9031\u672c\u5730\u78ba\u8a3a';
     controller.options.legend = 'none';
-    
+    controller.options.annotations = { style: { length:0 } };
     controller.redraw();
     return controller;
 }
