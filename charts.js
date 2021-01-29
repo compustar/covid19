@@ -374,7 +374,7 @@ function prepareWeeklyChart(data, elementId){
     controller = new ChartController(chartElement, chart, data, groupByWeeklyView);
     controller.options.title = '\u6bcf\u9031\u672c\u5730\u78ba\u8a3a';
     controller.options.legend = 'none';
-    controller.options.annotations = { style: { length:0 } };
+    controller.options.annotations = { stem: { length:0 } };
     controller.redraw();
     return controller;
 }
