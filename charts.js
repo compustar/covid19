@@ -26,7 +26,7 @@ function groupByWeeklyView(dt) {
     var data = google.visualization.data.group(
             dt,
             [{'column': 0, 'modifier': getWeek, 'type': 'date'}],
-            [{'column': 1, 'aggregation': google.visualization.data.avg, 'type': 'number'}]
+            [{'column': 1, 'aggregation': google.visualization.data.sum, 'type': 'number'}]
         );
     var view = new google.visualization.DataView(data);
     var lastRow = Math.max(...view.getFilteredRows([{column: 0, maxValue: getWeek(new Date())}]));
@@ -50,7 +50,7 @@ function groupByWeekdayView(dt, options) {
     var group = google.visualization.data.group(
             view,
             [{'column': 0, 'modifier': getDay, 'type': 'number'}],
-            [{'column': 1, 'aggregation': google.visualization.data.sum, 'type': 'number'}]
+            [{'column': 1, 'aggregation': google.visualization.data.avg, 'type': 'number'}]
         );
     view = new google.visualization.DataView(group);
     view.setColumns([{calc:getWeekDayColumn, type:'string', label:'Weekday'}, 1]);
