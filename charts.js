@@ -7,12 +7,67 @@ dateFormatter = {
     }
 }
 
-function ChartController(chartElement, chart, data, viewFactory) {
+function getWeek(origDate) {
+    var date = new Date(origDate.getTime());
+    date.setHours(0,0,0);    
+    return new Date(date.getTime() - date.getDay() % 7 * 86400000)
+}
+
+weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+function getWeekDayColumn(dt, row) {
+    return weekdays[dt.getValue(row, 0) % 7];
+}
+
+function getDay(date) {
+    return date.getDay() % 7;
+}
+
+function groupByWeeklyView(dt) {
+    var data = google.visualization.data.group(
+            dt,
+            [{'column': 0, 'modifier': getWeek, 'type': 'date'}],
+            [{'column': 1, 'aggregation': google.visualization.data.avg, 'type': 'number'}]
+        );
+    var view = new google.visualization.DataView(data);
+    var lastRow = Math.max(...view.getFilteredRows([{column: 0, maxValue: getWeek(new Date())}]));
+    view.setRows(0, lastRow);
+    return view;
+}
+
+function groupByWeekdayView(dt, options) {
+    var view = new google.visualization.DataView(dt);
+    var filter = {column: 0}
+    if (typeof(options) != "undefined") {
+        if (typeof(options["min"]) != "undefined") {
+            filter.minValue = options.min;
+        }
+        if (typeof(options["max"]) != "undefined") {
+            filter.maxValue = options.max;
+        }
+    }
+    var rows = view.getFilteredRows([filter]);
+    view.setRows(rows);
+    var group = google.visualization.data.group(
+            view,
+            [{'column': 0, 'modifier': getDay, 'type': 'number'}],
+            [{'column': 1, 'aggregation': google.visualization.data.sum, 'type': 'number'}]
+        );
+    view = new google.visualization.DataView(group);
+    view.setColumns([{calc:getWeekDayColumn, type:'string', label:'Weekday'}, 1]);
+
+    return view;
+}
+
+
+function ChartController(chartElement, chart, data, viewFactory, transformOptions) {
+    var src = data;
     var view = data;
-    if (!!viewFactory) {
+    var controller = this;
+
+    this.transformOptions = transformOptions;
+    if (!transformOptions && !!viewFactory) {
         view = viewFactory(data);
     }
-    var controller = this;
 
     this.options = {
         chartArea: {
@@ -42,12 +97,15 @@ function ChartController(chartElement, chart, data, viewFactory) {
     };
     this.redraw = function (newData) {
         if (newData) {
-            view = newData;
-            if (!!viewFactory) {
-                view = viewFactory(newData);
+            src = newData
+            if (viewFactory) {
+                view = viewFactory(src, controller.transformOptions);
             }
+        } else if (viewFactory && controller.transformOptions) {
+            view = viewFactory(src, controller.transformOptions);
         }
-        chart.draw(view, this.options);
+
+        chart.draw(view, controller.options);
     }
 
     this.initSlider = function (sliderElementId, sliderInited){
@@ -77,8 +135,16 @@ function ChartController(chartElement, chart, data, viewFactory) {
             });
         }
         dateSlider.noUiSlider.on('set', function (values, handle) {
-            controller.options.hAxis.viewWindow.min = new Date(parseInt(values[0]));
-            controller.options.hAxis.viewWindow.max = new Date(parseInt(values[1]));
+            var min = new Date(parseInt(values[0]));
+            var max = new Date(parseInt(values[1]));
+            if (controller.options.hAxis.viewWindow) {
+                controller.options.hAxis.viewWindow.min = min;
+                controller.options.hAxis.viewWindow.max = max;
+            }
+            if (controller.transformOptions) {
+                controller.transformOptions.min = min;
+                controller.transformOptions.max = max;
+            }
             controller.redraw();
         });
     }
@@ -297,6 +363,30 @@ function prepareRtChart(data, elementId){
     controller.options.series = {
         0: { lineDashStyle: [10, 2] }
     };
+    controller.redraw();
+    return controller;
+}
+
+function prepareWeeklyChart(data, elementId){
+    var chartElement = document.getElementById(elementId);
+    var chart = new google.visualization.ComboChart(chartElement);
+    controller = new ChartController(chartElement, chart, data, groupByWeeklyView);
+    controller.options.title = '\u6bcf\u9031\u672c\u5730\u78ba\u8a3a';
+    controller.options.legend = 'none';
+    
+    controller.redraw();
+    return controller;
+}
+
+function prepareWeekdayChart(data, elementId){
+    var chartElement = document.getElementById(elementId);
+    var chart = new google.visualization.ColumnChart(chartElement);
+    controller = new ChartController(chartElement, chart, data, groupByWeekdayView);
+    controller.options.title = '\u672c\u5730\u78ba\u8a3a\u0020\u0028\u6bcf\u65e5\u5e73\u5747\u0029';
+    controller.options.legend = 'none';
+    controller.transformOptions = {};
+    controller.options.hAxis = {}
+
     controller.redraw();
     return controller;
 }
