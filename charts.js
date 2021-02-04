@@ -227,10 +227,10 @@ function prepareBaseData(data) {
     data.addAverage(2, 7, "7d_unlinked_avg");
     last = data.getNumberOfRows();
     addPredictedValues(data, 1, "predicted", 16, 26, 84, 0);
-    addPredictedValues(data, 1, "predicted", 140, 160, 187, 30);
+    addPredictedValues(data, 1, "predicted", 140, 160, 187, 5);
     addPredictedValues(data, 1, "predicted", 190, 200, last, 30);
     addPredictedValues(data, 2, "predicted_unlinked", 16, 26, 84, 0);
-    addPredictedValues(data, 2, "predicted_unlinked", 140, 160, 187, 30);
+    addPredictedValues(data, 2, "predicted_unlinked", 140, 160, 187, 5);
     addPredictedValues(data, 2, "predicted_unlinked", 190, 200, last, 30);
     return data;
 }
