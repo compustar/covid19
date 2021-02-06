@@ -4,6 +4,11 @@ Date.prototype.addDays = function(days) {
     return result;
 };
 
+Date.prototype.removeTime = function() {
+    var result = new Date(this.getFullYear(), this.getMonth(), this.getDate());
+    return result;
+};
+
 Array.prototype.getAverage = function (days) {
     return getAverage(this, days);
 }

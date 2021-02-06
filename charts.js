@@ -35,28 +35,37 @@ function groupByWeeklyView(dt) {
     return view;
 }
 
-function groupByWeekdayView(dt, options) {
-    var view = new google.visualization.DataView(dt);
-    var filter = {column: 0}
-    if (typeof(options) != "undefined") {
-        if (typeof(options["min"]) != "undefined") {
-            filter.minValue = options.min;
+weekdayCaption = ['\u672c\u5730\u78ba\u8a3a\u0020\u0028','', '\u81F3', '' , '\u6bcf\u65e5\u5e73\u5747\u0029']
+function groupByWeekdayView(dt, controller) {
+    if (typeof(controller) != 'undefined') {
+        var options = controller.transformOptions;
+        var view = new google.visualization.DataView(dt);
+        var filter = {column: 0}
+        filter.maxValue = new Date().removeTime()
+        if (typeof(options) != "undefined") {
+            if (typeof(options["min"]) != "undefined") {
+                filter.minValue = options.min;
+            }
+            if (typeof(options["max"]) != "undefined" && filter.maxValue > options.max) {
+                filter.maxValue = options.max;            
+            }
         }
-        if (typeof(options["max"]) != "undefined") {
-            filter.maxValue = options.max;
-        }
-    }
-    var rows = view.getFilteredRows([filter]);
-    view.setRows(rows);
-    var group = google.visualization.data.group(
-            view,
-            [{'column': 0, 'modifier': getDay, 'type': 'number'}],
-            [{'column': 1, 'aggregation': google.visualization.data.avg, 'type': 'number'}]
-        );
-    view = new google.visualization.DataView(group);
-    view.setColumns([{calc:getWeekDayColumn, type:'string', label:'Weekday'}, 1, {calc:function(dt, row) {return dt.getValue(row, 1);}, type:'number', role: 'annotation'}]);
 
-    return view;
+        var rows = view.getFilteredRows([filter]);
+        view.setRows(rows);
+        weekdayCaption[1] = dateFormatter.to(view.getValue(0, 0));
+        var group = google.visualization.data.group(
+                view,
+                [{'column': 0, 'modifier': getDay, 'type': 'number'}],
+                [{'column': 1, 'aggregation': google.visualization.data.avg, 'type': 'number'}]
+            );
+        view = new google.visualization.DataView(group);
+        view.setColumns([{calc:getWeekDayColumn, type:'string', label:'Weekday'}, 1, {calc:function(dt, row) {return dt.getValue(row, 1);}, type:'number', role: 'annotation'}]);
+
+        weekdayCaption[3] = dateFormatter.to(filter.maxValue)
+        controller.options.title = weekdayCaption.join(' ');
+        return view;
+    }
 }
 
 
@@ -100,10 +109,10 @@ function ChartController(chartElement, chart, data, viewFactory, transformOption
         if (newData) {
             src = newData
             if (viewFactory) {
-                view = viewFactory(src, controller.transformOptions);
+                view = viewFactory(src, controller);
             }
         } else if (viewFactory && controller.transformOptions) {
-            view = viewFactory(src, controller.transformOptions);
+            view = viewFactory(src, controller);
         }
 
         chart.draw(view, controller.options);
