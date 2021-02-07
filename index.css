@@ -30,3 +30,7 @@ html, body{
     left: 0px;
     right: 0px;
 }
+
+#counter{
+    display: none;
+}
