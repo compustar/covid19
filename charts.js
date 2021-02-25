@@ -237,10 +237,12 @@ function prepareBaseData(data) {
     last = data.getNumberOfRows();
     addPredictedValues(data, 1, "predicted", 16, 26, 84, 0);
     addPredictedValues(data, 1, "predicted", 140, 160, 187, 5);
-    addPredictedValues(data, 1, "predicted", 190, 200, last, 30);
+    addPredictedValues(data, 1, "predicted", 190, 200, 228, 5);
+    addPredictedValues(data, 1, "predicted", 225, 230, last, 30);
     addPredictedValues(data, 2, "predicted_unlinked", 16, 26, 84, 0);
     addPredictedValues(data, 2, "predicted_unlinked", 140, 160, 187, 5);
-    addPredictedValues(data, 2, "predicted_unlinked", 190, 200, last, 30);
+    addPredictedValues(data, 2, "predicted_unlinked", 190, 200, 228, 5);
+    addPredictedValues(data, 2, "predicted_unlinked", 225, 230, last, 30);
     return data;
 }
 
