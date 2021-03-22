@@ -238,11 +238,12 @@ function prepareBaseData(data) {
     addPredictedValues(data, 1, "confirmed_trend", 16, 26, 84, 0);
     addPredictedValues(data, 1, "confirmed_trend", 140, 160, 187, 7);
     addPredictedValues(data, 1, "confirmed_trend", 195, 200, 220, 7);
-    addPredictedValues(data, 1, "confirmed_trend", 225, 235, last, 30);
+    addPredictedValues(data, 1, "confirmed_trend", 225, 235, 249, 7);
+    addPredictedValues(data, 1, "confirmed_trend", 250, 260, last, 30);
     addPredictedValues(data, 2, "unlinked_trend", 16, 26, 84, 0);
     addPredictedValues(data, 2, "unlinked_trend", 140, 160, 187, 7);
     addPredictedValues(data, 2, "unlinked_trend", 195, 205, 220, 7);
-    addPredictedValues(data, 2, "unlinked_trend", 225, 235, last, 30);
+    addPredictedValues(data, 2, "unlinked_trend", 225, 235, 249, 7);
     return data;
 }
 

@@ -24,17 +24,20 @@
 
         google.charts.setOnLoadCallback(init);
 
+        chartControllers = []
         function init() {
             initExtensions()
+            reload()
+        };
 
+        function reload() {
+            chartControllers = []
             var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=0&headers=1');
             query.send(handleQueryBaseResponse);
 
             query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=1524525805&headers=1&range=A22:F40');
             query.send(handleQueryDistrictResponse);
-        };
-
-        chartControllers = []
+        }
 
         function handleQueryBaseResponse(response) {
             charts = [
@@ -143,6 +146,7 @@
     </div>
     <div class="docked">
         <div class="spacer"></div>
+        <button class="reload" onclick="reload()">Reload Data</button>
         <div id="chart_slider" class="slider"></div>
     </div>
     <img id='counter' src="https://hitcounter.pythonanywhere.com/count/tag.svg" alt="Hits">

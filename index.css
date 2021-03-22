@@ -24,6 +24,10 @@ html, body{
     width: 75%;
 }
 
+button.reload{
+    float:right;
+}
+
 .docked{
     position: fixed; 
     top: 0px;
