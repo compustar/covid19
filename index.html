@@ -61,12 +61,16 @@
 
             var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=755906363&headers=1&range=A2:C');
             query.send(handleQueryInboundOutboundPassengerResponse);
+
+            var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=1815585731&headers=1&range=A:E');
+            query.send(handleQueryVaccineResponse);
+
         }
 
         function handleQueryRtResponse(response) {
             handleResponse(response, 
                 null, 
-                { factory: prepareRtChart, data: data, containerId: "rt", sliderId: "chart_slider"});
+                { factory: prepareRtChart, containerId: "rt", sliderId: "chart_slider"});
         }
 
         function handleQueryDistrictResponse(response) {
@@ -85,6 +89,12 @@
             handleResponse(response, 
                 prepareInboundOutboundPassengerData, 
                 { factory: prepareInboundOutboundPassengerChart, containerId: "inboundOutboundPassenger", sliderId: "chart_slider"});
+        }
+
+        function handleQueryVaccineResponse(response) {
+            handleResponse(response, 
+                null, 
+                { factory: prepareVaccineChart, containerId: "vaccine", sliderId: "chart_slider"});
         }
 
         function handleResponse(response, dataHandler, charts) {
@@ -135,6 +145,7 @@
             <div id="unlinked_ratio" class="graph"></div>
             <div id="unconfirmed" class="graph"></div>
             <div id="prelim_confirmed" class="graph"></div>
+            <div id="vaccine" class="graph"></div>
             <div id="rt" class="graph"></div>
             <div id="mobility" class="graph"></div>
             <div id="weekly" class="graph"></div>

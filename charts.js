@@ -103,7 +103,8 @@ function ChartController(chartElement, chart, data, viewFactory, transformOption
             viewWindow: {
                 min: 0
             }
-        }
+        },
+        changeMinDate: true
     };
     this.redraw = function (newData) {
         if (newData) {
@@ -148,7 +149,9 @@ function ChartController(chartElement, chart, data, viewFactory, transformOption
             var min = new Date(parseInt(values[0]));
             var max = new Date(parseInt(values[1]));
             if (controller.options.hAxis.viewWindow) {
-                controller.options.hAxis.viewWindow.min = min;
+                if (controller.options.changeMinDate) {
+                    controller.options.hAxis.viewWindow.min = min;
+                }
                 controller.options.hAxis.viewWindow.max = max;
             }
             if (controller.transformOptions) {
@@ -453,6 +456,18 @@ function prepareInboundOutboundPassengerChart(data, elementId){
         3: { lineWidth: 3 },
     };
     
+    controller.redraw();
+    return controller;
+}
+
+function prepareVaccineChart(data, elementId){
+    var chartElement = document.getElementById(elementId);
+    var chart = new google.visualization.ColumnChart(chartElement);
+    controller = new ChartController(chartElement, chart, data);
+    controller.options.title = '\u6bcf\u65e5\u75ab\u82d7\u63a5\u7a2e\u5291\u91cf';
+    controller.options.isStacked = true;
+    controller.options.changeMinDate = false;
+    controller.options.hAxis.viewWindow.min = new Date(2021, 1, 22)
     controller.redraw();
     return controller;
 }
