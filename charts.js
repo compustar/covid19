@@ -123,7 +123,7 @@ function ChartController(chartElement, chart, data, viewFactory, transformOption
         var dateSlider = document.getElementById(sliderElementId);
         if (!!!sliderInited) {
             start = data.getValue(0,0).getTime();
-            end = data.getValue(data.getNumberOfRows() - 1,0).getTime()
+            end = data.getValue(data.getNumberOfRows() - 1,0).getTime() + (24 * 60 * 60 * 1000)
             noUiSlider.create(dateSlider, {
             // Create two timestamps to define a range.
                 range: {
@@ -151,6 +151,11 @@ function ChartController(chartElement, chart, data, viewFactory, transformOption
             if (controller.options.hAxis.viewWindow) {
                 if (controller.options.changeMinDate) {
                     controller.options.hAxis.viewWindow.min = min;
+                } else {
+                    if (!controller.options.minDate) {
+                        controller.options.minDate = controller.options.hAxis.viewWindow.min;
+                    }
+                    controller.options.hAxis.viewWindow.min = controller.options.minDate > min ? controller.options.minDate : min;
                 }
                 controller.options.hAxis.viewWindow.max = max;
             }
@@ -242,7 +247,7 @@ function prepareBaseData(data) {
     addPredictedValues(data, 1, "confirmed_trend", 140, 160, 187, 7);
     addPredictedValues(data, 1, "confirmed_trend", 195, 200, 220, 7);
     addPredictedValues(data, 1, "confirmed_trend", 225, 235, 249, 7);
-    addPredictedValues(data, 1, "confirmed_trend", 250, 260, last, 30);
+    addPredictedValues(data, 1, "confirmed_trend", 250, 260, 265, 30);
     addPredictedValues(data, 2, "unlinked_trend", 16, 26, 84, 0);
     addPredictedValues(data, 2, "unlinked_trend", 140, 160, 187, 7);
     addPredictedValues(data, 2, "unlinked_trend", 195, 205, 220, 7);
@@ -463,11 +468,42 @@ function prepareInboundOutboundPassengerChart(data, elementId){
 function prepareVaccineChart(data, elementId){
     var chartElement = document.getElementById(elementId);
     var chart = new google.visualization.ColumnChart(chartElement);
-    controller = new ChartController(chartElement, chart, data);
+    var dv = new google.visualization.DataView(data);
+    dv.setColumns([0, 1, 2, 3, 4])
+    controller = new ChartController(chartElement, chart, dv);
     controller.options.title = '\u6bcf\u65e5\u75ab\u82d7\u63a5\u7a2e\u5291\u91cf';
     controller.options.isStacked = true;
     controller.options.changeMinDate = false;
     controller.options.hAxis.viewWindow.min = new Date(2021, 1, 22)
+    controller.redraw();
+    return controller;
+}
+
+function prepareVaccineBookingChart(data, elementId){
+    var chartElement = document.getElementById(elementId);
+    var chart = new google.visualization.ComboChart(chartElement);
+    var dv = new google.visualization.DataView(data);
+    dv.setColumns([0, 7, 8])
+    controller = new ChartController(chartElement, chart, dv);
+    controller.options.title = '\u6BCF\u65E5\u75AB\u82D7\u9810\u7D04\u4EBA\u6578';
+    controller.options.changeMinDate = false;
+    controller.options.hAxis.viewWindow.min = new Date(2021, 2, 16)
+    controller.redraw();
+    return controller;
+}
+
+function prepareVaccineByAgeChart(data, elementId){
+    var chartElement = document.getElementById(elementId);
+    var chart = new google.visualization.ComboChart(chartElement);
+    controller = new ChartController(chartElement, chart, data);
+    controller.options.title = '\u6bcf\u65e5\u75ab\u82d7\u63a5\u7a2e\u5291\u91cf (\u6309\u5E74\u9F61)';
+    controller.options.changeMinDate = false;
+    controller.options.hAxis.viewWindow.min = new Date(2021, 4, 1)
+    controller.options.chartArea.right = 130;
+    controller.options.legend.position = "right"
+    controller.options.legend.textStyle = {
+        fontSize: 9
+      };
     controller.redraw();
     return controller;
 }

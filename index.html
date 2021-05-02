@@ -62,8 +62,11 @@
             var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=755906363&headers=1&range=A2:C');
             query.send(handleQueryInboundOutboundPassengerResponse);
 
-            var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=1815585731&headers=1&range=A:E');
+            var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=1815585731&headers=1&range=A:I');
             query.send(handleQueryVaccineResponse);
+
+            var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=1005685833&headers=1&range=F2:N');
+            query.send(handleQueryVaccineByAgeResponse);
 
         }
 
@@ -95,6 +98,16 @@
             handleResponse(response, 
                 null, 
                 { factory: prepareVaccineChart, containerId: "vaccine", sliderId: "chart_slider"});
+            handleResponse(response, 
+                null, 
+                { factory: prepareVaccineBookingChart, containerId: "vaccine_booking", sliderId: "chart_slider"});
+        }
+
+        function handleQueryVaccineByAgeResponse(response) {
+            handleResponse(response, 
+                null, 
+                { factory: prepareVaccineByAgeChart, containerId: "vaccine_by_age", sliderId: "chart_slider"});
+
         }
 
         function handleResponse(response, dataHandler, charts) {
@@ -146,6 +159,8 @@
             <div id="unconfirmed" class="graph"></div>
             <div id="prelim_confirmed" class="graph"></div>
             <div id="vaccine" class="graph"></div>
+            <div id="vaccine_booking" class="graph"></div>
+            <div id="vaccine_by_age" class="graph"></div>
             <div id="rt" class="graph"></div>
             <div id="mobility" class="graph"></div>
             <div id="weekly" class="graph"></div>
