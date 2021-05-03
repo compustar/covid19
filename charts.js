@@ -474,7 +474,7 @@ function prepareVaccineChart(data, elementId){
     controller.options.title = '\u6bcf\u65e5\u75ab\u82d7\u63a5\u7a2e\u5291\u91cf';
     controller.options.isStacked = true;
     controller.options.changeMinDate = false;
-    controller.options.hAxis.viewWindow.min = new Date(2021, 1, 22)
+    controller.options.hAxis.viewWindow.min = new Date(2021, 1, 21)
     controller.redraw();
     return controller;
 }
@@ -487,7 +487,7 @@ function prepareVaccineBookingChart(data, elementId){
     controller = new ChartController(chartElement, chart, dv);
     controller.options.title = '\u6BCF\u65E5\u75AB\u82D7\u9810\u7D04\u4EBA\u6578';
     controller.options.changeMinDate = false;
-    controller.options.hAxis.viewWindow.min = new Date(2021, 2, 16)
+    controller.options.hAxis.viewWindow.min = new Date(2021, 2, 15)
     controller.redraw();
     return controller;
 }
@@ -496,9 +496,9 @@ function prepareVaccineByAgeChart(data, elementId){
     var chartElement = document.getElementById(elementId);
     var chart = new google.visualization.ComboChart(chartElement);
     controller = new ChartController(chartElement, chart, data);
-    controller.options.title = '\u6bcf\u65e5\u75ab\u82d7\u63a5\u7a2e\u5291\u91cf (\u6309\u5E74\u9F61)';
+    controller.options.title = '\u6bcf\u65e5\u7b2c\u4e00\u91dd\u75ab\u82d7\u63a5\u7a2e\u91cf (\u6309\u5E74\u9F61)';
     controller.options.changeMinDate = false;
-    controller.options.hAxis.viewWindow.min = new Date(2021, 4, 1)
+    controller.options.hAxis.viewWindow.min = new Date(2021, 3, 28)
     controller.options.chartArea.right = 130;
     controller.options.legend.position = "right"
     controller.options.legend.textStyle = {
