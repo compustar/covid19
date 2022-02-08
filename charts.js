@@ -469,7 +469,7 @@ function prepareVaccineChart(data, elementId){
     var chartElement = document.getElementById(elementId);
     var chart = new google.visualization.ColumnChart(chartElement);
     var dv = new google.visualization.DataView(data);
-    dv.setColumns([0, 1, 2, 3, 4])
+    dv.setColumns([0, 1, 2, 3, 4, 5, 6])
     controller = new ChartController(chartElement, chart, dv);
     controller.options.title = '\u6bcf\u65e5\u75ab\u82d7\u63a5\u7a2e\u5291\u91cf';
     controller.options.isStacked = true;
