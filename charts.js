@@ -81,7 +81,7 @@ function ChartController(chartElement, chart, data, viewFactory, transformOption
 
     this.options = {
         chartArea: {
-            left:50,
+            left:100,
             right:10, // !!! works !!!
             bottom:50,  // !!! works !!!
             top:50,
