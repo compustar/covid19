@@ -267,6 +267,27 @@ function prepareInboundOutboundPassengerData(data) {
     return data;
 }
 
+function prepareRtnData(data) {
+    var aggregated_result = google.visualization.data.group(
+        data,
+        [0],
+        [{'column': 4, 'aggregation': google.visualization.data.sum, 'type': 'number'},
+         {'column': 6, 'aggregation': google.visualization.data.sum, 'type': 'number'},
+        ]
+    );
+    var n = aggregated_result.getNumberOfRows();
+
+    var col = data.addColumn("number", "average");
+    for (var i = 0; i < n; i++) {
+        var date_value = aggregated_result.getValue(i, 0);
+        var average_value = aggregated_result.getValue(i, 1) / aggregated_result.getValue(i, 2);
+        var row = [date_value, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, average_value];
+        data.addRow(row);
+    }
+    
+    return data;
+}
+
 function prepareConfirmedChart(data, elementId){
     var chartElement = document.getElementById(elementId);
     var chart = new google.visualization.ComboChart(chartElement);
@@ -507,3 +528,21 @@ function prepareVaccineByAgeChart(data, elementId){
     controller.redraw();
     return controller;
 }
+
+function prepareRtnChart(data, elementId){
+    var formatter = new google.visualization.NumberFormat({pattern: '#%'});
+    var dv = new google.visualization.DataView(data);
+    dv.setColumns([0, 7, 9])
+
+    var chartElement = document.getElementById(elementId);
+    var chart = new google.visualization.ScatterChart(chartElement);
+    var controller = new ChartController(chartElement, chart, dv);
+    controller.options.title = '\u570d\u5c01\u5f37\u6aa2\u78ba\u8a3a\u7387';
+    controller.options.changeMinDate = false;
+    controller.options.hAxis.viewWindow.min = new Date(2021, 11, 22);
+    controller.options.vAxis.format = 'percent'
+
+    controller.redraw();
+    return controller;
+}
+

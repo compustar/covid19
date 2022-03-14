@@ -32,7 +32,7 @@
 
         function reload() {
             chartControllers = []
-            var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=0&headers=1');
+            var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=0&headers=1&range=A:E');
             query.send(handleQueryBaseResponse);
 
             query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=1524525805&headers=1&range=A22:F40');
@@ -67,6 +67,9 @@
 
             var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=1005685833&headers=1&range=F2:Q');
             query.send(handleQueryVaccineByAgeResponse);
+
+            var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kup0Az0xANLK1VPQ6jfXMc0DDNdxsPC7lSXg0AYOM1s/gviz/tq?gid=406895511&headers=1&range=A:I');
+            query.send(handleQueryRtn);
 
         }
 
@@ -108,6 +111,12 @@
                 null, 
                 { factory: prepareVaccineByAgeChart, containerId: "vaccine_by_age", sliderId: "chart_slider"});
 
+        }
+
+        function handleQueryRtn(response) {
+            handleResponse(response, 
+                prepareRtnData, 
+                { factory: prepareRtnChart, containerId: "rtn", sliderId: "chart_slider"});
         }
 
         function handleResponse(response, dataHandler, charts) {
@@ -155,6 +164,7 @@
         <div class="spacer"></div>
         <div class="container">
             <div id="confirmed" class="graph"></div>
+            <div id="rtn" class="graph"></div>
             <div id="unlinked_ratio" class="graph"></div>
             <div id="unconfirmed" class="graph"></div>
             <div id="prelim_confirmed" class="graph"></div>
