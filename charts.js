@@ -277,7 +277,7 @@ function prepareRtnData(data) {
     );
     var n = aggregated_result.getNumberOfRows();
 
-    var col = data.addColumn("number", "average");
+    data.addColumn("number", "average");
     for (var i = 0; i < n; i++) {
         var date_value = aggregated_result.getValue(i, 0);
         var average_value = aggregated_result.getValue(i, 1) / aggregated_result.getValue(i, 2);
@@ -531,6 +531,8 @@ function prepareVaccineByAgeChart(data, elementId){
 
 function prepareRtnChart(data, elementId){
     var formatter = new google.visualization.NumberFormat({pattern: '#%'});
+    formatter.format(data, 9);
+
     var dv = new google.visualization.DataView(data);
     dv.setColumns([0, 7, 9])
 
@@ -540,9 +542,8 @@ function prepareRtnChart(data, elementId){
     controller.options.title = '\u570d\u5c01\u5f37\u6aa2\u78ba\u8a3a\u7387';
     controller.options.changeMinDate = false;
     controller.options.hAxis.viewWindow.min = new Date(2021, 11, 22);
-    controller.options.vAxis.format = 'percent'
+    controller.options.vAxis.format = 'percent';
 
     controller.redraw();
     return controller;
 }
-
